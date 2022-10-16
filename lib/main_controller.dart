@@ -1,20 +1,29 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_demo/modules/done/done_screen.dart';
+import 'package:hive_demo/modules/task/tasks_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 import 'package:hive_demo/models/card_model.dart';
 
-class HomeScreenController extends GetxController {
+class MainController extends GetxController {
   final dateFormatter = DateFormat('dd MMM yyyy');
   final timeFormatter = DateFormat('hh:mm');
+  RxString selectedScreen = "Task".obs;
 
   Box? box;
   final String _boxName = 'tasks';
-
+  
   final RxList _tasks = [].obs;
   List get tasks  => _tasks.toList();
+
+  final RxList _tasksOngoing = [].obs;
+  List get tasksOngoing  => _tasksOngoing.toList();
+
+  final RxList _tasksDone = [].obs;
+  List get tasksDone => _tasksDone.toList();
 
   TextEditingController textTitle = TextEditingController();
   TextEditingController textDescription = TextEditingController();
@@ -47,9 +56,31 @@ class HomeScreenController extends GetxController {
     }
   }
 
-  void toggleTasks(int taskIndex) {
+  void markAsDone(int taskIndex) {
     try {
-      box!.deleteAt(taskIndex);
+      int idx = _tasks.indexOf(_tasksOngoing[taskIndex]);
+      var data = box!.getAt(idx);
+
+      CardModel edited = CardModel(
+        title: data.title, 
+        description: data.description, 
+        isComplete: true,
+        date: data.date,
+        time: data.time
+      );
+
+      box!.putAt(idx, edited);
+      getData();
+    } catch (e) {
+      print('error => $e');
+    }
+  }
+
+  void deleteData(int taskIndex) {
+    try {
+      int idx = _tasks.indexOf(_tasksDone[taskIndex]);
+      box!.deleteAt(idx);
+      
       getData();
     } catch (e) {
       print('error => $e');
@@ -57,10 +88,24 @@ class HomeScreenController extends GetxController {
   }
 
   void getData() {
-    try{
+    try {
       _tasks.value = box!.values.toList();
+      _tasksOngoing.value = _tasks.where((e) => e.isComplete == false).toList();
+      _tasksDone.value = tasks.where((e) => e.isComplete == true).toList();
+
     } catch(e) {
       print('error => $e');
+    }
+  }
+
+  Widget taskScreen() {
+    switch(selectedScreen.value) {
+      case "Task":
+        return const TasksScreen();
+      case "Done":
+        return const DoneScreen();
+      default:
+        return const TasksScreen();
     }
   }
 }

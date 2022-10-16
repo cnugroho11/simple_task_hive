@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_demo/main_controller.dart';
 import 'package:hive_demo/modules/home/home_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -14,6 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> initService() async {
     await Hive.initFlutter();
+    Get.put(MainController());
     Future.delayed(const Duration(seconds: 2), () {
       Get.offAll(() => const HomeScreen());
     });

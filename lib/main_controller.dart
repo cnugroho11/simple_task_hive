@@ -10,7 +10,7 @@ import 'package:hive_demo/models/card_model.dart';
 
 class MainController extends GetxController {
   final dateFormatter = DateFormat('dd MMM yyyy');
-  final timeFormatter = DateFormat('hh:mm');
+  final timeFormatter = DateFormat('HH:mm');
   RxString selectedScreen = "Task".obs;
 
   Box? box;
